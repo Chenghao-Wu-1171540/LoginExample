@@ -1,4 +1,3 @@
-
 CREATE TYPE user_role AS ENUM ('volunteer', 'event_leader', 'admin');
 CREATE TYPE user_status AS ENUM ('active', 'inactive');
 CREATE TYPE attendance_status AS ENUM ('pending', 'attended', 'absent');

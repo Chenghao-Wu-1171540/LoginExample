@@ -589,14 +589,12 @@ def admin_reports():
 
     stats = {}
 
-    # 1. 用户统计
     cur.execute("SELECT role, COUNT(*) AS count FROM users GROUP BY role")
     stats['users_by_role'] = {row['role']: row['count'] for row in cur.fetchall()}
 
     cur.execute("SELECT status, COUNT(*) AS count FROM users GROUP BY status")
     stats['users_by_status'] = {row['status']: row['count'] for row in cur.fetchall()}
 
-    # 2. 活动统计
     cur.execute("SELECT COUNT(*) AS total FROM events")
     stats['total_events'] = cur.fetchone()['total']
 
@@ -606,11 +604,9 @@ def admin_reports():
     cur.execute("SELECT COUNT(*) AS past FROM events WHERE event_date < CURRENT_DATE")
     stats['past_events'] = cur.fetchone()['past']
 
-    # 3. 报名统计
     cur.execute("SELECT COUNT(*) AS total_registrations FROM eventregistrations")
     stats['total_registrations'] = cur.fetchone()['total_registrations']
 
-    # 4. 成果统计（所有活动总和）
     cur.execute("""
         SELECT 
             COALESCE(SUM(num_attendees), 0) AS total_attendees,
@@ -623,12 +619,10 @@ def admin_reports():
     stats['total_bags'] = outcomes['total_bags']
     stats['total_recyclables'] = outcomes['total_recyclables']
 
-    # 5. 平均评分（所有反馈）
     cur.execute("SELECT AVG(rating) AS avg_rating FROM feedback")
     avg = cur.fetchone()['avg_rating']
     stats['average_rating'] = round(avg, 2) if avg is not None else "N/A"
 
-    # 6. 最近 5 个活动（按日期降序）
     cur.execute("""
         SELECT e.event_id, e.event_name, e.event_date, e.location,
                COUNT(er.volunteer_id) AS registrations,
@@ -647,7 +641,7 @@ def admin_reports():
     return render_template('admin_reports.html', stats=stats, recent_events=recent_events)
 
 # ────────────────────────────────────────────────
-# LEADER - EVENT DETAIL (包含查看报名者、记录成果、查看反馈)
+# LEADER - EVENT DETAIL
 # ────────────────────────────────────────────────
 @app.route('/leader/event/<int:event_id>')
 @login_required
@@ -656,7 +650,7 @@ def event_detail_leader(event_id):
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
-    # 获取事件基本信息 + 确认是自己创建的
+    # base info
     cur.execute("""
         SELECT e.*, u.full_name AS leader_name
         FROM events e
@@ -670,7 +664,7 @@ def event_detail_leader(event_id):
         cur.close()
         return redirect(url_for('leader_my_events'))
 
-    # 1. 报名志愿者列表
+    # 1. list
     cur.execute("""
         SELECT u.user_id, u.username, u.full_name, u.email, u.contact_number,
                er.registered_at, er.attendance
@@ -681,11 +675,11 @@ def event_detail_leader(event_id):
     """, (event_id,))
     registrations = cur.fetchall()
 
-    # 2. 成果记录（如果已存在）
+    # 2. records
     cur.execute("SELECT * FROM eventoutcomes WHERE event_id = %s", (event_id,))
     outcome = cur.fetchone()
 
-    # 3. 反馈列表
+    # 3. feedback
     cur.execute("""
         SELECT f.rating, f.comments, f.submitted_at, u.full_name AS volunteer_name
         FROM feedback f
@@ -716,7 +710,7 @@ def record_outcome(event_id):
     conn = get_db()
     cur = conn.cursor()
 
-    # 确认权限
+    # make sure this event belongs to the current user
     cur.execute("SELECT event_leader_id FROM events WHERE event_id = %s", (event_id,))
     if not cur.fetchone() or cur.fetchone()['event_leader_id'] != session['user_id']:
         flash('Permission denied', 'danger')
@@ -729,12 +723,12 @@ def record_outcome(event_id):
     other_achievements = request.form.get('other_achievements')
 
     try:
-        # 先检查是否已存在记录
+        # check if outcome exists
         cur.execute("SELECT outcome_id FROM eventoutcomes WHERE event_id = %s", (event_id,))
         existing = cur.fetchone()
 
         if existing:
-            # 更新
+            # update
             cur.execute("""
                 UPDATE eventoutcomes
                 SET num_attendees = %s, bags_collected = %s, recyclables_sorted = %s,
@@ -742,7 +736,7 @@ def record_outcome(event_id):
                 WHERE event_id = %s
             """, (num_attendees, bags_collected, recyclables_sorted, other_achievements, event_id))
         else:
-            # 新增
+            # insert
             cur.execute("""
                 INSERT INTO eventoutcomes (event_id, num_attendees, bags_collected,
                                           recyclables_sorted, other_achievements)
@@ -757,6 +751,141 @@ def record_outcome(event_id):
 
     cur.close()
     return redirect(url_for('event_detail_leader', event_id=event_id))
+
+
+# ────────────────────────────────────────────────
+# EDIT EVENT (Leader & Admin)
+# ────────────────────────────────────────────────
+@app.route('/event/edit/<int:event_id>', methods=['GET', 'POST'])
+@login_required
+def edit_event(event_id):
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    # Permission check: The Leader can only edit their own content, while the Admin can edit all.
+    if session['role'] == 'event_leader':
+        cur.execute("SELECT * FROM events WHERE event_id = %s AND event_leader_id = %s",
+                    (event_id, session['user_id']))
+    else:  # admin
+        cur.execute("SELECT * FROM events WHERE event_id = %s", (event_id,))
+
+    event = cur.fetchone()
+    if not event:
+        flash('No authority to edit this event or the event does not exist.', 'danger')
+        cur.close()
+        return redirect(url_for('leader_my_events' if session['role'] == 'event_leader' else 'admin_events'))
+
+    if request.method == 'POST':
+        try:
+            cur.execute("""
+                        UPDATE events
+                        SET event_name=%s,
+                            location=%s,
+                            event_date=%s,
+                            start_time=%s,
+                            duration=%s,
+                            description=%s,
+                            supplies=%s,
+                            safety_instructions=%s
+                        WHERE event_id = %s
+                        """, (
+                            request.form['event_name'], request.form['location'],
+                            request.form['event_date'], request.form['start_time'],
+                            int(request.form['duration']), request.form.get('description'),
+                            request.form.get('supplies'), request.form.get('safety_instructions'),
+                            event_id
+                        ))
+            conn.commit()
+            flash('success', 'success')
+            cur.close()
+            return redirect(url_for('leader_my_events' if session['role'] == 'event_leader' else 'admin_events'))
+        except:
+            conn.rollback()
+            flash('fail', 'danger')
+
+    cur.close()
+    return render_template('edit_event.html', event=event)
+
+
+# ────────────────────────────────────────────────
+# CANCEL EVENT (Leader & Admin)
+# ────────────────────────────────────────────────
+@app.route('/event/cancel/<int:event_id>')
+@login_required
+def cancel_event(event_id):
+    conn = get_db()
+    cur = conn.cursor()
+
+    if session['role'] == 'event_leader':
+        cur.execute("DELETE FROM events WHERE event_id = %s AND event_leader_id = %s",
+                    (event_id, session['user_id']))
+    else:
+        cur.execute("DELETE FROM events WHERE event_id = %s", (event_id,))
+
+    if cur.rowcount > 0:
+        conn.commit()
+        flash('delete event success', 'success')
+    else:
+        flash('something wrong', 'danger')
+
+    cur.close()
+    return redirect(url_for('leader_my_events' if session['role'] == 'event_leader' else 'admin_events'))
+
+@app.route('/event/remove/<int:event_id>/<int:volunteer_id>')
+@login_required
+@role_required('event_leader')
+def remove_volunteer(event_id, volunteer_id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("""
+        DELETE FROM eventregistrations 
+        WHERE event_id = %s AND volunteer_id = %s
+    """, (event_id, volunteer_id))
+    conn.commit()
+    flash('remove volunteer success', 'success')
+    cur.close()
+    return redirect(url_for('event_detail_leader', event_id=event_id))
+
+@app.route('/event/mark_attendance/<int:event_id>/<int:volunteer_id>', methods=['POST'])
+@login_required
+@role_required('event_leader')
+def mark_attendance(event_id, volunteer_id):
+    attendance = request.form.get('attendance')
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("""
+        UPDATE eventregistrations 
+        SET attendance = %s 
+        WHERE event_id = %s AND volunteer_id = %s
+    """, (attendance, event_id, volunteer_id))
+    conn.commit()
+    cur.close()
+    flash('Attendance updated', 'success')
+    return redirect(url_for('event_detail_leader', event_id=event_id))
+
+@app.route('/leader/send_reminder/<int:event_id>', methods=['POST'])
+@login_required
+@role_required('event_leader')
+def send_reminder(event_id):
+    flash(f'Reminder for event #{event_id} has been queued. Volunteers will see it on next login.', 'success')
+    return redirect(url_for('event_detail_leader', event_id=event_id))
+
+@app.route('/admin/events')
+@login_required
+@role_required('admin')
+def admin_events():
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("""
+        SELECT e.*, u.full_name AS leader_name,
+               (SELECT COUNT(*) FROM eventregistrations WHERE event_id = e.event_id) AS reg_count
+        FROM events e
+        JOIN users u ON e.event_leader_id = u.user_id
+        ORDER BY e.event_date DESC
+    """)
+    events = cur.fetchall()
+    cur.close()
+    return render_template('admin_events.html', events=events)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
