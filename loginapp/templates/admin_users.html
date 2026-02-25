@@ -1,22 +1,26 @@
 {% extends "base.html" %}
 
-{% block title %}Manage Users - EcoCleanUp Hub{% endblock %}
+{% block title %}Admin - Manage Users{% endblock %}
 
 {% block content %}
 
 <h2 class="mb-4 text-success">
-    <i class="bi bi-people me-2"></i>Manage Users
+    <i class="bi bi-people-fill me-2"></i>Manage Users
 </h2>
 
 <form method="GET" class="mb-4">
     <div class="input-group">
-        <input type="text" name="search" class="form-control" placeholder="Search by name, username or email..." value="{{ search or '' }}">
-        <button class="btn btn-success" type="submit"><i class="bi bi-search"></i></button>
+        <input type="text" name="search" class="form-control"
+               placeholder="Search by username, name or email..."
+               value="{{ search or '' }}">
+        <button class="btn btn-success" type="submit">
+            <i class="bi bi-search"></i> Search
+        </button>
     </div>
 </form>
 
 <div class="table-responsive">
-    <table class="table table-hover">
+    <table class="table table-hover table-bordered align-middle">
         <thead class="table-success">
             <tr>
                 <th>Username</th>
@@ -44,10 +48,17 @@
                     </span>
                 </td>
                 <td>
-                    <a href="{{ url_for('toggle_user', user_id=user.user_id) }}" 
-                       class="btn btn-sm {% if user.status == 'active' %}btn-outline-danger{% else %}btn-outline-success{% endif %}">
+                    <a href="{{ url_for('toggle_user', user_id=user.user_id) }}"
+                       class="btn btn-sm {% if user.status == 'active' %}btn-outline-danger{% else %}btn-outline-success{% endif %}"
+                       onclick="return confirm('Are you sure you want to {{ 'deactivate' if user.status == 'active' else 'activate' }} this user?');">
                         {% if user.status == 'active' %}Deactivate{% else %}Activate{% endif %}
                     </a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="text-center text-muted py-4">
+                    No users found matching your search.
                 </td>
             </tr>
             {% endfor %}

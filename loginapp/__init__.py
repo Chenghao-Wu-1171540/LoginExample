@@ -497,5 +497,149 @@ def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
+# ────────────────────────────────────────────────
+# ADMIN - MANAGE USERS
+# ────────────────────────────────────────────────
+@app.route('/admin/users')
+@login_required
+@role_required('admin')
+def admin_users():
+    search = request.args.get('search', '').strip()
+
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    query = """
+        SELECT user_id, username, full_name, email, role, status, created_at
+        FROM users
+        WHERE 1=1
+    """
+    params = []
+
+    if search:
+        query += """
+            AND (
+                username ILIKE %s OR
+                full_name ILIKE %s OR
+                email ILIKE %s
+            )
+        """
+        like_pattern = f"%{search}%"
+        params.extend([like_pattern, like_pattern, like_pattern])
+
+    query += " ORDER BY created_at DESC"
+
+    cur.execute(query, params)
+    users_list = cur.fetchall()
+    cur.close()
+
+    return render_template('admin_users.html', users=users_list, search=search)
+
+
+# ────────────────────────────────────────────────
+# ADMIN - TOGGLE USER STATUS (activate / deactivate)
+# ────────────────────────────────────────────────
+@app.route('/admin/users/toggle/<int:user_id>')
+@login_required
+@role_required('admin')
+def toggle_user(user_id):
+    if user_id == session['user_id']:
+        flash('You cannot change your own status', 'warning')
+        return redirect(url_for('admin_users'))
+
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    cur.execute("SELECT status FROM users WHERE user_id = %s", (user_id,))
+    user = cur.fetchone()
+
+    if not user:
+        flash('User not found', 'danger')
+        cur.close()
+        return redirect(url_for('admin_users'))
+
+    new_status = 'inactive' if user['status'] == 'active' else 'active'
+
+    try:
+        cur.execute("UPDATE users SET status = %s WHERE user_id = %s", (new_status, user_id))
+        conn.commit()
+        flash(f"User status changed to {new_status}", 'success')
+    except Exception as e:
+        conn.rollback()
+        flash('Error updating user status', 'danger')
+
+    cur.close()
+    return redirect(url_for('admin_users'))
+
+
+# ────────────────────────────────────────────────
+# ADMIN - PLATFORM REPORTS
+# ────────────────────────────────────────────────
+@app.route('/admin/reports')
+@login_required
+@role_required('admin')
+def admin_reports():
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    stats = {}
+
+    # 1. 用户统计
+    cur.execute("SELECT role, COUNT(*) AS count FROM users GROUP BY role")
+    stats['users_by_role'] = {row['role']: row['count'] for row in cur.fetchall()}
+
+    cur.execute("SELECT status, COUNT(*) AS count FROM users GROUP BY status")
+    stats['users_by_status'] = {row['status']: row['count'] for row in cur.fetchall()}
+
+    # 2. 活动统计
+    cur.execute("SELECT COUNT(*) AS total FROM events")
+    stats['total_events'] = cur.fetchone()['total']
+
+    cur.execute("SELECT COUNT(*) AS upcoming FROM events WHERE event_date >= CURRENT_DATE")
+    stats['upcoming_events'] = cur.fetchone()['upcoming']
+
+    cur.execute("SELECT COUNT(*) AS past FROM events WHERE event_date < CURRENT_DATE")
+    stats['past_events'] = cur.fetchone()['past']
+
+    # 3. 报名统计
+    cur.execute("SELECT COUNT(*) AS total_registrations FROM eventregistrations")
+    stats['total_registrations'] = cur.fetchone()['total_registrations']
+
+    # 4. 成果统计（所有活动总和）
+    cur.execute("""
+        SELECT 
+            COALESCE(SUM(num_attendees), 0) AS total_attendees,
+            COALESCE(SUM(bags_collected), 0) AS total_bags,
+            COALESCE(SUM(recyclables_sorted), 0) AS total_recyclables
+        FROM eventoutcomes
+    """)
+    outcomes = cur.fetchone()
+    stats['total_attendees'] = outcomes['total_attendees']
+    stats['total_bags'] = outcomes['total_bags']
+    stats['total_recyclables'] = outcomes['total_recyclables']
+
+    # 5. 平均评分（所有反馈）
+    cur.execute("SELECT AVG(rating) AS avg_rating FROM feedback")
+    avg = cur.fetchone()['avg_rating']
+    stats['average_rating'] = round(avg, 2) if avg is not None else "N/A"
+
+    # 6. 最近 5 个活动（按日期降序）
+    cur.execute("""
+        SELECT e.event_id, e.event_name, e.event_date, e.location,
+               COUNT(er.volunteer_id) AS registrations,
+               eo.num_attendees, eo.bags_collected
+        FROM events e
+        LEFT JOIN eventregistrations er ON e.event_id = er.event_id
+        LEFT JOIN eventoutcomes eo ON e.event_id = eo.event_id
+        GROUP BY e.event_id, eo.outcome_id
+        ORDER BY e.event_date DESC
+        LIMIT 5
+    """)
+    recent_events = cur.fetchall()
+
+    cur.close()
+
+    return render_template('admin_reports.html', stats=stats, recent_events=recent_events)
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
