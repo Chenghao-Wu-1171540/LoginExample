@@ -3,80 +3,84 @@
 {% block title %}My Profile{% endblock %}
 
 {% block content %}
-<h2 class="mb-4 text-success"><i class="bi bi-person-circle me-2"></i>My Profile</h2>
+    <h2 class="mb-4 text-success"><i class="bi bi-person-circle me-2"></i>My Profile</h2>
 
-<div class="row">
-    <div class="col-md-4 text-center mb-4">
-    {% if user.profile_image and user.profile_image.strip() %}
-        <img src="{{ url_for('uploaded_file', filename=user.profile_image) }}"
-             alt="Profile Picture"
-             class="img-fluid rounded-circle shadow"
-             style="max-width: 200px; height: 200px; object-fit: cover;">
-    {% else %}
-        <img src="{{ url_for('uploaded_file', filename='default_profile.jpg') }}"
-             alt="Default Profile Picture"
-             class="img-fluid rounded-circle shadow"
-             style="max-width: 200px; height: 200px; object-fit: cover;">
-    {% endif %}
+    <div class="row">
+        <div class="col-md-4 text-center mb-4">
+            {% set profile_pic = user.profile_image if user.profile_image and user.profile_image.strip() else 'default_profile.jpg' %}
 
-    <p class="mt-3 fw-bold">{{ user.full_name }}</p>
-    <span class="badge bg-success">
-        {% if user.role == 'volunteer' %}Volunteer{% elif user.role == 'event_leader' %}Event Leader{% else %}Administrator{% endif %}
+            <img src="{{ url_for('uploaded_file', filename=profile_pic) }}"
+                 alt="Profile Picture"
+                 class="img-fluid rounded-circle shadow"
+                 style="max-width: 200px; height: 200px; object-fit: cover; border: 3px solid #2e7d32;">
+
+            <p class="mt-3 fw-bold">{{ user.full_name }}</p>
+            <span class="badge bg-success">
+        {% if user.role == 'volunteer' %}Volunteer{% elif user.role == 'event_leader' %}Event Leader{% else %}
+            Administrator{% endif %}
     </span>
-</div>
+        </div>
 
-    <div class="col-md-8">
-        <div class="card shadow-sm">
-            <div class="card-header bg-success-subtle text-success fw-bold">
-                Personal Information
-            </div>
-            <div class="card-body">
-                <form method="POST" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label class="form-label">Username</label>
-                        <input type="text" class="form-control" value="{{ user.username }}" disabled>
-                    </div>
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success-subtle text-success fw-bold">
+                    Personal Information
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" value="{{ user.username }}" disabled>
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="full_name" class="form-label">Full Name</label>
-                        <input type="text" class="form-control" id="full_name" name="full_name" value="{{ user.full_name }}" required>
-                    </div>
+                        <div class="mb-3">
+                            <label for="full_name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="full_name" name="full_name"
+                                   value="{{ user.full_name }}" required>
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
-                    </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}"
+                                   required>
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="home_address" class="form-label">Home Address</label>
-                        <input type="text" class="form-control" id="home_address" name="home_address" value="{{ user.home_address or '' }}">
-                    </div>
+                        <div class="mb-3">
+                            <label for="home_address" class="form-label">Home Address</label>
+                            <input type="text" class="form-control" id="home_address" name="home_address"
+                                   value="{{ user.home_address or '' }}">
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="contact_number" class="form-label">Contact Number</label>
-                        <input type="tel" class="form-control" id="contact_number" name="contact_number" value="{{ user.contact_number or '' }}">
-                    </div>
+                        <div class="mb-3">
+                            <label for="contact_number" class="form-label">Contact Number</label>
+                            <input type="tel" class="form-control" id="contact_number" name="contact_number"
+                                   value="{{ user.contact_number or '' }}">
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="environmental_interests" class="form-label">Environmental Interests</label>
-                        <textarea class="form-control" id="environmental_interests" name="environmental_interests" rows="3">{{ user.environmental_interests or '' }}</textarea>
-                        <small class="form-text text-muted">e.g. beach cleanups, recycling, tree planting, native plant protection</small>
-                    </div>
+                        <div class="mb-3">
+                            <label for="environmental_interests" class="form-label">Environmental Interests</label>
+                            <textarea class="form-control" id="environmental_interests" name="environmental_interests"
+                                      rows="3">{{ user.environmental_interests or '' }}</textarea>
+                            <small class="form-text text-muted">e.g. beach cleanups, recycling, tree planting, native
+                                plant protection</small>
+                        </div>
 
-                    <div class="mb-4">
-                        <label for="profile_image" class="form-label">Change Profile Picture (optional, max 2MB)</label>
-                        <input type="file" class="form-control" id="profile_image" name="profile_image" accept="image/*">
-                    </div>
+                        <div class="mb-4">
+                            <label for="profile_image" class="form-label">Change Profile Picture (optional, max
+                                2MB)</label>
+                            <input type="file" class="form-control" id="profile_image" name="profile_image"
+                                   accept="image/*">
+                        </div>
 
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-save me-2"></i>Save Changes
-                    </button>
-                    <a href="{{ url_for('change_password') }}" class="btn btn-outline-secondary ms-2">
-                        <i class="bi bi-key me-2"></i>Change Password
-                    </a>
-                </form>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-save me-2"></i>Save Changes
+                        </button>
+                        <a href="{{ url_for('change_password') }}" class="btn btn-outline-secondary ms-2">
+                            <i class="bi bi-key me-2"></i>Change Password
+                        </a>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}
