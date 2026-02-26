@@ -4,137 +4,156 @@
 
 {% block content %}
 
-<h2 class="mb-4 text-success">
-    <i class="bi bi-info-circle-fill me-2"></i>{{ event.event_name }}
-</h2>
-
 <div class="row">
-    <!-- 事件基本信息 -->
-    <div class="col-lg-8">
-        <div class="card shadow-sm mb-4">
+    <div class="col-lg-10 mx-auto">
+        <h2 class="mb-4 text-success">
+            <i class="bi bi-info-circle-fill me-2"></i>{{ event.event_name }}
+        </h2>
+
+        <!-- 事件基本資訊 -->
+        <div class="card shadow-sm mb-4 border-success-subtle">
             <div class="card-header bg-success-subtle text-success">
                 <h5 class="mb-0">Event Information</h5>
             </div>
             <div class="card-body">
-                <p><strong>Location:</strong> {{ event.location }}</p>
-                <p><strong>Date & Time:</strong> {{ event.event_date.strftime('%Y-%m-%d') }} 
-                    {{ event.start_time.strftime('%H:%M') }} ({{ event.duration }} minutes)</p>
-                <p><strong>Description:</strong> {{ event.description or 'No description' }}</p>
-                <p><strong>Supplies needed:</strong> {{ event.supplies or '-' }}</p>
-                <p><strong>Safety instructions:</strong> {{ event.safety_instructions or '-' }}</p>
-                <p><strong>Created by:</strong> {{ event.leader_name }}</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Location:</strong> {{ event.location }}</p>
+                        <p><strong>Date:</strong> {{ event.event_date.strftime('%Y-%m-%d') }}</p>
+                        <p><strong>Time:</strong> {{ event.start_time.strftime('%H:%M') }} ({{ event.duration }} minutes)</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Organised by:</strong> {{ event.leader_name }}</p>
+                        <p><strong>Created:</strong> {{ event.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                </div>
+                <hr>
+                <p><strong>Description:</strong><br>{{ event.description or 'No description provided.' }}</p>
+                <p><strong>Supplies needed:</strong><br>{{ event.supplies or '-' }}</p>
+                <p><strong>Safety instructions:</strong><br>{{ event.safety_instructions or '-' }}</p>
             </div>
         </div>
 
-        <!-- 报名志愿者列表 -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-success-subtle text-success d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-people me-2"></i>Registered Volunteers ({{ registrations|length }})</h5>
-            </div>
-            <div class="card-body p-0">
-                {% if registrations %}
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Contact</th>
-                                <th>Registered At</th>
-                                <th>Attendance</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for reg in registrations %}
-                            <tr>
-                                <td>{{ reg.full_name }} (@{{ reg.username }})</td>
-                                <td>{{ reg.email }}</td>
-                                <td>{{ reg.contact_number or '-' }}</td>
-                                <td>{{ reg.registered_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                                <td>
-                                    <span class="badge bg-{% if reg.attendance == 'attended' %}success{% elif reg.attendance == 'absent' %}danger{% else %}warning{% endif %}">
-                                        {{ reg.attendance | title }}
-                                    </span>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="text-center py-4 text-muted">
-                    No volunteers registered yet.
-                </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- 查看反馈 -->
-        <div class="card shadow-sm">
-            <div class="card-header bg-success-subtle text-success">
-                <h5 class="mb-0"><i class="bi bi-chat-square-text me-2"></i>Feedback from Volunteers</h5>
-            </div>
-            <div class="card-body">
-                {% if feedbacks %}
-                <div class="list-group">
-                    {% for fb in feedbacks %}
-                    <div class="list-group-item">
-                        <div class="d-flex justify-content-between">
-                            <strong>{{ fb.volunteer_name }}</strong>
-                            <span class="badge bg-warning text-dark">{{ fb.rating }} / 5</span>
+        <div class="row">
+            <!-- 左側：已報名志工列表 -->
+            <div class="col-lg-7">
+                <div class="card shadow-sm mb-4 border-success-subtle">
+                    <div class="card-header bg-success-subtle text-success d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-people me-2"></i>Registered Volunteers ({{ registrations|length }})
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        {% if registrations %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Registered At</th>
+                                        <th>Attendance</th>
+                                        {% if event.event_date >= today %}
+                                        <th>Actions</th>
+                                        {% endif %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reg in registrations %}
+                                    <tr>
+                                        <td>{{ reg.full_name }}</td>
+                                        <td>{{ reg.registered_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>
+                                            {% if reg.attendance == 'attended' %}
+                                                <span class="badge bg-success">Attended</span>
+                                            {% elif reg.attendance == 'absent' %}
+                                                <span class="badge bg-danger">Absent</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                        {% if event.event_date >= today %}
+                                        <td>
+                                            <form method="POST" action="{{ url_for('mark_attendance', event_id=event.event_id, volunteer_id=reg.volunteer_id) }}" class="d-flex align-items-center gap-2">
+                                                <select name="attendance" class="form-select form-select-sm" style="width: auto;">
+                                                    <option value="pending" {% if reg.attendance == 'pending' %}selected{% endif %}>Pending</option>
+                                                    <option value="attended" {% if reg.attendance == 'attended' %}selected{% endif %}>Attended</option>
+                                                    <option value="absent" {% if reg.attendance == 'absent' %}selected{% endif %}>Absent</option>
+                                                </select>
+                                                <button type="submit" class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-check-lg"></i> Save
+                                                </button>
+                                            </form>
+                                            <a href="{{ url_for('remove_volunteer', event_id=event.event_id, volunteer_id=reg.volunteer_id) }}"
+                                               class="btn btn-sm btn-outline-danger mt-1"
+                                               onclick="return confirm('Are you sure you want to remove {{ reg.full_name }} from this event?');">
+                                                <i class="bi bi-person-x"></i> Remove
+                                            </a>
+                                        </td>
+                                        {% endif %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
-                        <small class="text-muted">{{ fb.submitted_at.strftime('%Y-%m-%d %H:%M') }}</small>
-                        <p class="mt-2 mb-0">{{ fb.comments or 'No comments' }}</p>
+                        {% else %}
+                        <div class="text-center py-4 text-muted">
+                            <i class="bi bi-people display-4 d-block mb-3"></i>
+                            No volunteers registered yet.
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endfor %}
                 </div>
-                {% else %}
-                <div class="text-center py-3 text-muted">
-                    No feedback submitted yet.
+            </div>
+
+            <!-- 右側：活動成果記錄（僅過去活動可編輯） -->
+            <div class="col-lg-5">
+                <div class="card shadow-sm border-success-subtle">
+                    <div class="card-header bg-success-subtle text-success">
+                        <h5 class="mb-0"><i class="bi bi-clipboard-check me-2"></i>Event Outcomes</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if event.event_date < today %}
+                        <form method="POST" action="{{ url_for('record_outcome', event_id=event.event_id) }}">
+                            <div class="mb-3">
+                                <label class="form-label">Number of Attendees</label>
+                                <input type="number" name="num_attendees" class="form-control"
+                                       value="{{ outcome.num_attendees or registrations|length }}" min="0" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Bags of Rubbish Collected</label>
+                                <input type="number" name="bags_collected" class="form-control"
+                                       value="{{ outcome.bags_collected or 0 }}" min="0" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Recyclables Sorted (items)</label>
+                                <input type="number" name="recyclables_sorted" class="form-control"
+                                       value="{{ outcome.recyclables_sorted or 0 }}" min="0" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Other Achievements / Notes</label>
+                                <textarea name="other_achievements" class="form-control" rows="3">{{ outcome.other_achievements or '' }}</textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="bi bi-save me-1"></i>Save Outcomes
+                            </button>
+                        </form>
+                        {% else %}
+                        <div class="alert alert-info mb-0">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Outcomes can be recorded after the event date has passed.
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
-                {% endif %}
             </div>
         </div>
-    </div>
 
-    <!-- 右侧：记录成果 -->
-    <div class="col-lg-4">
-        <div class="card shadow-sm sticky-top" style="top: 1rem;">
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0"><i class="bi bi-check-circle me-2"></i>Record Event Outcomes</h5>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('record_outcome', event_id=event.event_id) }}">
-                    <div class="mb-3">
-                        <label class="form-label">Number of Attendees</label>
-                        <input type="number" name="num_attendees" class="form-control" 
-                               value="{{ outcome.num_attendees or '' }}" min="0" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Bags of Rubbish Collected</label>
-                        <input type="number" name="bags_collected" class="form-control" 
-                               value="{{ outcome.bags_collected or '' }}" min="0" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Recyclables Sorted (items)</label>
-                        <input type="number" name="recyclables_sorted" class="form-control" 
-                               value="{{ outcome.recyclables_sorted or '' }}" min="0" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Other Achievements / Notes</label>
-                        <textarea name="other_achievements" class="form-control" rows="3">{{ outcome.other_achievements or '' }}</textarea>
-                    </div>
-                    <button type="submit" class="btn btn-success w-100">
-                        <i class="bi bi-save me-1"></i>Save Outcomes
-                    </button>
-                </form>
-            </div>
+        <div class="mt-4">
+            <a href="{{ url_for('leader_my_events') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to My Events
+            </a>
         </div>
     </div>
 </div>
-
-<a href="{{ url_for('leader_my_events') }}" class="btn btn-outline-secondary mt-4">
-    <i class="bi bi-arrow-left me-1"></i>Back to My Events
-</a>
 
 {% endblock %}

@@ -870,6 +870,10 @@ def send_reminder(event_id):
     flash(f'Reminder for event #{event_id} has been queued. Volunteers will see it on next login.', 'success')
     return redirect(url_for('event_detail_leader', event_id=event_id))
 
+
+from datetime import date  # ← make sure this import exists at the top
+
+
 @app.route('/admin/events')
 @login_required
 @role_required('admin')
@@ -877,15 +881,21 @@ def admin_events():
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute("""
-        SELECT e.*, u.full_name AS leader_name,
-               (SELECT COUNT(*) FROM eventregistrations WHERE event_id = e.event_id) AS reg_count
-        FROM events e
-        JOIN users u ON e.event_leader_id = u.user_id
-        ORDER BY e.event_date DESC
-    """)
+                SELECT e.*,
+                       u.full_name                                                           AS leader_name,
+                       (SELECT COUNT(*) FROM eventregistrations WHERE event_id = e.event_id) AS reg_count
+                FROM events e
+                         JOIN users u ON e.event_leader_id = u.user_id
+                ORDER BY e.event_date DESC
+                """)
     events = cur.fetchall()
     cur.close()
-    return render_template('admin_events.html', events=events)
+
+    today = date.today()  # ← add this line
+
+    return render_template('admin_events.html',
+                           events=events,
+                           today=today)  # ← pass it here
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

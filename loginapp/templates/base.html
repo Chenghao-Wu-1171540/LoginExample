@@ -35,17 +35,8 @@
         .nav-link:hover {
             color: #e8f5e9 !important;
         }
-        .btn-primary {
-            background-color: var(--green-primary);
-            border-color: var(--green-primary);
-        }
-        .btn-primary:hover {
-            background-color: var(--green-dark);
-            border-color: var(--green-dark);
-        }
-        .card-header {
-            background-color: #e8f5e9;
-            color: var(--green-dark);
+        .badge {
+            font-size: 0.9rem;
         }
         footer {
             background-color: var(--green-primary);
@@ -53,45 +44,68 @@
             padding: 1.5rem 0;
             margin-top: 3rem;
         }
-        .alert {
-            margin-top: 1rem;
-        }
     </style>
-
-    {% block head %}{% endblock %}
 </head>
 <body>
 
-    <!-- 導覽列 -->
+    <!-- 導航欄 -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">
+            <a class="navbar-brand" href="{{ url_for('home') }}">
                 <i class="bi bi-leaf-fill me-2"></i>EcoCleanUp Hub
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarNav" aria-controls="navbarNav"
-                    aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     {% if session.user_id %}
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('events') }}"><i class="bi bi-search me-1"></i>Browse Events</a></li>
+                        <!-- 所有登入用戶共用 -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('events') }}"><i class="bi bi-search me-1"></i>Browse Events</a>
+                        </li>
 
+                        <!-- Volunteer 專屬 -->
                         {% if session.role == 'volunteer' %}
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('my_participation') }}"><i class="bi bi-calendar-check me-1"></i>My Participation</a></li>
-                        {% elif session.role == 'event_leader' %}
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('leader_my_events') }}"><i class="bi bi-list-check me-1"></i>My Events</a></li>
-                        {% elif session.role == 'admin' %}
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_users') }}"><i class="bi bi-people me-1"></i>Manage Users</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_reports') }}"><i class="bi bi-bar-chart me-1"></i>Platform Reports</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('my_participation') }}"><i class="bi bi-calendar-check me-1"></i>My Participation</a>
+                        </li>
                         {% endif %}
 
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('profile') }}"><i class="bi bi-person-circle me-1"></i>Profile</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right me-1"></i>Logout</a></li>
+                        <!-- Event Leader 專屬 -->
+                        {% if session.role == 'event_leader' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('leader_my_events') }}"><i class="bi bi-list-check me-1"></i>My Events</a>
+                        </li>
+                        {% endif %}
+
+                        <!-- Admin 專屬 -->
+                        {% if session.role == 'admin' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_users') }}"><i class="bi bi-people me-1"></i>Manage Users</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_events') }}"><i class="bi bi-calendar-event me-1"></i>Manage Events</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_reports') }}"><i class="bi bi-bar-chart-line me-1"></i>Reports</a>
+                        </li>
+                        {% endif %}
+
+                        <!-- 個人相關 -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('profile') }}"><i class="bi bi-person-circle me-1"></i>Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right me-1"></i>Logout</a>
+                        </li>
                     {% else %}
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}"><i class="bi bi-person-plus me-1"></i>Register (Volunteer)</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('login') }}"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('register') }}"><i class="bi bi-person-plus me-1"></i>Register</a>
+                        </li>
                     {% endif %}
                 </ul>
             </div>
@@ -99,7 +113,7 @@
     </nav>
 
     <!-- 主要內容區域 -->
-    <main class="container my-4">
+    <main class="container my-5">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}

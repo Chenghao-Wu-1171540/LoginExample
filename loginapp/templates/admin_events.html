@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Manage All Events{% endblock %}
+
+{% block content %}
+
+<h2 class="mb-4 text-success">
+    <i class="bi bi-calendar-event-fill me-2"></i>Manage All Clean-up Events
+</h2>
+
+{% if events %}
+<div class="table-responsive">
+    <table class="table table-hover table-bordered align-middle">
+        <thead class="table-success">
+            <tr>
+                <th>Event Name</th>
+                <th>Date</th>
+                <th>Location</th>
+                <th>Leader</th>
+                <th>Registrations</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in events %}
+            <tr>
+                <td>{{ event.event_name }}</td>
+                <td>{{ event.event_date.strftime('%Y-%m-%d') }}</td>
+                <td>{{ event.location }}</td>
+                <td>{{ event.leader_name }}</td>
+                <td>{{ event.reg_count or 0 }}</td>
+                <td>
+                    {% if event.event_date > today %}
+                        <span class="badge bg-primary">Upcoming</span>
+                    {% elif event.event_date == today %}
+                        <span class="badge bg-warning">Today</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Past</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('event_detail_leader', event_id=event.event_id) }}"
+                       class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-eye me-1"></i>View
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info text-center py-4">
+    <i class="bi bi-info-circle-fill me-2 fs-4"></i>
+    No events found on the platform.
+</div>
+{% endif %}
+
+{% endblock %}

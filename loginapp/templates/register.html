@@ -2,24 +2,40 @@
 {% block title %}EcoCleanUp - Register{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-6">
-        <div class="card shadow">
-            <div class="card-header bg-success text-white text-center">
-                <h3><i class="bi bi-person-plus"></i> Register as Volunteer</h3>
-            </div>
-            <div class="card-body">
-                <form method="POST" enctype="multipart/form-data">
-                    <!-- username, password, confirm_password, full_name, email, home_address, contact_number, interests, profile_image -->
-                    <!-- (standard Bootstrap form fields – add the ones you need) -->
-                    <div class="mb-3">
-                        <label>Profile Picture (optional)</label>
-                        <input type="file" class="form-control" name="profile_image" accept="image/*">
-                    </div>
-                    <button type="submit" class="btn btn-success w-100">Create Account</button>
-                </form>
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white text-center">
+                    <h3><i class="bi bi-person-plus"></i> Register as Volunteer</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-3"><label>Username *</label><input type="text" class="form-control"
+                                                                          name="username" required></div>
+                        <div class="mb-3"><label>Password *</label><input type="password" class="form-control"
+                                                                          name="password" required></div>
+                        <div class="mb-3"><label>Confirm Password *</label><input type="password" class="form-control"
+                                                                                  name="confirm_password" required>
+                        </div>
+                        <div class="mb-3"><label>Full Name *</label><input type="text" class="form-control"
+                                                                           name="full_name" required></div>
+                        <div class="mb-3"><label>Email *</label><input type="email" class="form-control" name="email"
+                                                                       required></div>
+                        <div class="mb-3"><label>Home Address</label><input type="text" class="form-control"
+                                                                            name="home_address"></div>
+                        <div class="mb-3"><label>Contact Number</label><input type="tel" class="form-control"
+                                                                              name="contact_number"></div>
+                        <div class="mb-3"><label>Environmental Interests</label><textarea class="form-control"
+                                                                                          name="environmental_interests"
+                                                                                          rows="3"></textarea></div>
+                        <div class="mb-3"><label>Profile Picture (optional)</label><input type="file"
+                                                                                          class="form-control"
+                                                                                          name="profile_image"
+                                                                                          accept="image/*"></div>
+                        <button type="submit" class="btn btn-success w-100">Register</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}
