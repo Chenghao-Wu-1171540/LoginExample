@@ -14,18 +14,22 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    <!-- 自訂綠色環保主題 -->
+    <!-- Custom green eco theme + advanced animations -->
     <style>
         :root {
             --green-primary: #2e7d32;
             --green-light: #4caf50;
             --green-dark: #1b5e20;
             --bg-light: #f5f8f5;
+            --glow-color: rgba(76, 175, 80, 0.6);
         }
+
         body {
             background-color: var(--bg-light);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
         }
+
         .navbar {
             background-color: var(--green-primary) !important;
         }
@@ -44,11 +48,126 @@
             padding: 1.5rem 0;
             margin-top: 3rem;
         }
+
+        /* ───────────── Advanced Animation Styles ───────────── */
+
+        /* Typewriter effect for titles (used with JS) */
+        .typewriter {
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 0.15em solid var(--green-light);
+            animation: typing 3.5s steps(40, end) forwards, blink-caret 0.75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--green-light); }
+        }
+
+        /* 3D card tilt on hover */
+        .card-3d {
+            transition: all 0.4s ease;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        .card-3d:hover {
+            transform: translateY(-12px) rotateX(8deg) rotateY(8deg);
+            box-shadow: 0 25px 50px -12px rgba(46, 125, 50, 0.4);
+        }
+
+        .card-3d::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+        }
+
+        .card-3d:hover::before {
+            opacity: 1;
+        }
+
+        /* Gentle floating + glow for icons / titles */
+        @keyframes gentle-float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(3deg); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { text-shadow: 0 0 15px var(--glow-color); }
+            50% { text-shadow: 0 0 35px var(--glow-color); }
+        }
+
+        .animate-float-glow {
+            animation: gentle-float 8s ease-in-out infinite, pulse-glow 6s ease-in-out infinite;
+        }
+
+        /* Content fade-in from bottom */
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(60px);
+            transition: opacity 1.4s ease-out, transform 1.4s ease-out;
+        }
+
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Subtle breathing background with green particles feel */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(76, 175, 80, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(46, 125, 50, 0.09) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: -1;
+            animation: bg-breathe 28s ease-in-out infinite;
+        }
+
+        @keyframes bg-breathe {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.06); }
+        }
+
+        /* Optional very light particle dots (CSS only) */
+        .particle-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -2;
+            background: transparent;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(76, 175, 80, 0.4);
+            border-radius: 50%;
+            animation: float-particle linear infinite;
+        }
+
+        @keyframes float-particle {
+            0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+            50% { opacity: 0.7; }
+            100% { transform: translateY(-20vh) scale(1); opacity: 0; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- 導航欄 -->
+    <!-- Navigation bar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('home') }}">
@@ -60,59 +179,30 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     {% if session.user_id %}
-                        <!-- 所有登入用戶共用 -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('events') }}"><i class="bi bi-search me-1"></i>Browse Events</a>
-                        </li>
-
-                        <!-- Volunteer 專屬 -->
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('events') }}"><i class="bi bi-search me-1"></i>Browse Events</a></li>
                         {% if session.role == 'volunteer' %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('my_participation') }}"><i class="bi bi-calendar-check me-1"></i>My Participation</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('my_participation') }}"><i class="bi bi-calendar-check me-1"></i>My Participation</a></li>
                         {% endif %}
-
-                        <!-- Event Leader 專屬 -->
                         {% if session.role == 'event_leader' %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('leader_my_events') }}"><i class="bi bi-list-check me-1"></i>My Events</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('leader_my_events') }}"><i class="bi bi-list-check me-1"></i>My Events</a></li>
                         {% endif %}
-
-                        <!-- Admin 專屬 -->
                         {% if session.role == 'admin' %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('admin_users') }}"><i class="bi bi-people me-1"></i>Manage Users</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('admin_events') }}"><i class="bi bi-calendar-event me-1"></i>Manage Events</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('admin_reports') }}"><i class="bi bi-bar-chart-line me-1"></i>Reports</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_users') }}"><i class="bi bi-people me-1"></i>Manage Users</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_events') }}"><i class="bi bi-calendar-event me-1"></i>Manage Events</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_reports') }}"><i class="bi bi-bar-chart-line me-1"></i>Reports</a></li>
                         {% endif %}
-
-                        <!-- 個人相關 -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('profile') }}"><i class="bi bi-person-circle me-1"></i>Profile</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right me-1"></i>Logout</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('profile') }}"><i class="bi bi-person-circle me-1"></i>Profile</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right me-1"></i>Logout</a></li>
                     {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('login') }}"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('register') }}"><i class="bi bi-person-plus me-1"></i>Register</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}"><i class="bi bi-person-plus me-1"></i>Register</a></li>
                     {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- 主要內容區域 -->
+    <!-- Main content area -->
     <main class="container my-5">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -128,7 +218,7 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- 頁腳 -->
+    <!-- Footer -->
     <footer class="text-center">
         <div class="container">
             <p class="mb-1">

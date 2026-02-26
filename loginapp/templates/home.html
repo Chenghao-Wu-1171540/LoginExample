@@ -3,12 +3,13 @@
 {% block title %}EcoCleanUp Hub - Home{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
+<div class="row justify-content-center fade-in-section">
     <div class="col-lg-10 text-center">
-        <h1 class="display-4 fw-bold text-success mt-5 mb-4">
-            <i class="bi bi-leaf-fill me-2"></i>Welcome to EcoCleanUp Hub
+        <!-- Main welcome title with animation -->
+        <h1 class="display-4 fw-bold text-success mt-5 mb-4 animate-title">
+            <i class="bi bi-leaf-fill me-2 leaf-icon"></i>Welcome to EcoCleanUp Hub
         </h1>
-        
+
         <p class="lead text-muted mb-5">
             Join community clean-up actions and help protect Canterbury's natural environment!<br>
             Browse upcoming clean-up events, register to participate, track your contributions,
@@ -26,84 +27,46 @@
         </div>
         {% endif %}
 
-        <!-- 即將到來的活動提醒 Modal (僅 volunteer 且有活動時顯示) -->
+        <!-- Upcoming events reminder modal (shown only for volunteers with upcoming registrations) -->
         {% if show_reminder %}
-        <!-- 隱藏的觸發按鈕 -->
+        <!-- Hidden trigger button for modal -->
         <button type="button" class="btn btn-primary d-none"
                 data-bs-toggle="modal" data-bs-target="#upcomingEventsModal"
                 id="triggerReminderModal">
-            Launch reminder
+            Launch reminder modal
         </button>
 
-        <div class="modal fade" id="upcomingEventsModal" tabindex="-1"
-             aria-labelledby="upcomingEventsModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
-                <div class="modal-content border-0 shadow-lg">
+        <div class="modal fade" id="upcomingEventsModal" tabindex="-1" aria-labelledby="upcomingEventsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-success">
                     <div class="modal-header bg-success text-white">
-                        <h5 class="modal-title" id="upcomingEventsModalLabel">
-                            <i class="bi bi-bell-fill me-2"></i>Upcoming Clean-up Events Reminder
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white"
-                                data-bs-dismiss="modal" aria-label="Close"></button>
+                        <h5 class="modal-title" id="upcomingEventsModalLabel">Upcoming Clean-up Events</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body bg-light">
-                        <p class="lead text-center mb-4">
-                            You have <strong>{{ upcoming|length }}</strong> upcoming event{{ 's' if upcoming|length > 1 else '' }}
-                            you've registered for:
-                        </p>
-
-                        <div class="list-group mb-4">
-                            {% for event in upcoming %}
-                            <a href="{{ url_for('events') }}"
-                               class="list-group-item list-group-item-action flex-column align-items-start">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1 text-success">{{ event.event_name }}</h5>
-                                    <small class="text-muted">
-                                        {{ event.event_date.strftime('%Y-%m-%d') }}
-                                    </small>
-                                </div>
-                                <p class="mb-1">
-                                    <i class="bi bi-clock me-1"></i> {{ event.start_time.strftime('%H:%M') }}
-                                    <i class="bi bi-geo-alt-fill me-1 ms-3"></i> {{ event.location }}
-                                </p>
-                            </a>
+                    <div class="modal-body">
+                        <p>You have <strong>{{ upcoming_count }}</strong> upcoming event(s) you're registered for:</p>
+                        <ul class="list-group">
+                            {% for event in upcoming_events %}
+                            <li class="list-group-item">
+                                <strong>{{ event.event_name }}</strong><br>
+                                <small>{{ event.event_date.strftime('%Y-%m-%d') }} at {{ event.start_time.strftime('%H:%M') }} • {{ event.location }}</small>
+                            </li>
                             {% endfor %}
-                        </div>
-
-                        <div class="alert alert-info small mb-0 text-center">
-                            <i class="bi bi-info-circle-fill me-1"></i>
-                            You can view or manage your registrations in
-                            <a href="{{ url_for('my_participation') }}" class="alert-link">My Participation</a>.
-                        </div>
+                        </ul>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary"
-                                data-bs-dismiss="modal">Close</button>
-                        <a href="{{ url_for('events') }}" class="btn btn-success">
-                            <i class="bi bi-search me-1"></i>Browse More Events
-                        </a>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <a href="{{ url_for('my_participation') }}" class="btn btn-success">View My Participation</a>
                     </div>
                 </div>
             </div>
         </div>
         {% endif %}
 
-        <!-- 平台亮點 / 呼籲行動卡片 -->
+        <!-- Three feature highlight cards -->
         <div class="row g-4 mt-5">
             <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <i class="bi bi-people-fill display-4 text-success mb-3"></i>
-                        <h5 class="card-title">Community Participation</h5>
-                        <p class="card-text text-muted">
-                            Hundreds of volunteers are already helping clean beaches, parks,
-                            and riverbanks across Canterbury.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
+                <div class="card h-100 border-0 shadow-sm fade-in-section">
                     <div class="card-body text-center">
                         <i class="bi bi-recycle display-4 text-success mb-3"></i>
                         <h5 class="card-title">Environmental Impact</h5>
@@ -115,13 +78,24 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
+                <div class="card h-100 border-0 shadow-sm fade-in-section">
                     <div class="card-body text-center">
                         <i class="bi bi-tree-fill display-4 text-success mb-3"></i>
                         <h5 class="card-title">Planting & Restoration</h5>
                         <p class="card-text text-muted">
                             Planting native trees and restoring damaged natural habitats
                             for future generations.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm fade-in-section">
+                    <div class="card-body text-center">
+                        <i class="bi bi-people-fill display-4 text-success mb-3"></i>
+                        <h5 class="card-title">Community Together</h5>
+                        <p class="card-text text-muted">
+                            Bringing people together for a cleaner, greener Canterbury.
                         </p>
                     </div>
                 </div>
@@ -133,15 +107,28 @@
 
 {% block scripts %}
 <script>
+    // Auto-show reminder modal on page load (if applicable)
     document.addEventListener('DOMContentLoaded', function () {
         {% if show_reminder %}
-        // 頁面載入完成後自動顯示提醒 Modal
+        // Show the upcoming events reminder modal automatically
         var reminderModal = new bootstrap.Modal(document.getElementById('upcomingEventsModal'), {
-            backdrop: 'static',  // 點擊背景不關閉（可選）
+            backdrop: 'static',
             keyboard: true
         });
         reminderModal.show();
         {% endif %}
+
+        // Fade-in animation using Intersection Observer
+        const fadeSections = document.querySelectorAll('.fade-in-section');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        fadeSections.forEach(section => observer.observe(section));
     });
 </script>
 {% endblock %}
