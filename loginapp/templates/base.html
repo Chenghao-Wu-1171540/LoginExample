@@ -51,15 +51,15 @@
             color: var(--primary-light) !important;
         }
 
-        /* Main content area */
+        /* Main content area - reduced top padding */
         main {
-            padding-top: 5.5rem;           /* space for fixed navbar */
-            padding-bottom: 3rem;
+            padding-top: 4.5rem;           /* 原 5.5rem → 減少，給 hero 更多空間向上靠攏 */
+            padding-bottom: 2rem;          /* 原 3rem → 減少頁尾上方空間 */
         }
 
         @media (max-width: 991.98px) {
             main {
-                padding-top: 5rem;
+                padding-top: 4rem;
             }
         }
 
@@ -110,12 +110,12 @@
         .bg-primary-subtle  { background-color: rgba(10, 108, 116, 0.07) !important; }
         .border-primary     { border-color: var(--primary) !important; }
 
-        /* Hero section (used on home page) */
+        /* Hero section - significantly reduced bottom spacing */
         .hero {
             background: linear-gradient(135deg, #4db8c4 0%, #0a6c74 100%);
             color: white;
-            padding: 6rem 1rem 4.5rem;
-            margin-bottom: 3rem;
+            padding: 5rem 1rem 2rem;          /* 上方保留空間，下方大幅壓縮 */
+            margin-bottom: 0.75rem;            /* 原 3rem → 0.75rem，關鍵減少留白 */
             border-radius: 0 0 2.5rem 2.5rem;
             text-align: center;
         }
@@ -127,7 +127,7 @@
 
         .hero .lead {
             max-width: 720px;
-            margin: 1.5rem auto 2.5rem;
+            margin: 1.5rem auto 1.5rem;       /* 內部間距也壓縮 */
             opacity: 0.95;
         }
 
@@ -136,7 +136,7 @@
             background: var(--primary);
             color: white;
             padding: 3rem 0 2rem;
-            margin-top: 5rem;
+            margin-top: 4rem;                  /* 原 5rem → 稍微減少 */
         }
 
         footer a {
