@@ -14,239 +14,120 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    <!-- Custom theme: soft teal / ocean-inspired palette -->
-    <style>
-        :root {
-            --primary:        #0a6c74;          /* main teal color */
-            --primary-dark:   #08545a;          /* darker hover state */
-            --primary-light:  #4db8c4;          /* lighter accent */
-            --bg-soft:        #f5fcfe;          /* very light cyan background */
-            --text-dark:      #1a3c40;
-            --text-muted:     #5f7a7d;
-            --shadow-sm:      0 4px 16px rgba(10, 108, 116, 0.08);
-            --shadow-md:      0 10px 32px rgba(10, 108, 116, 0.12);
-        }
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
 
-        body {
-            background-color: var(--bg-soft);
-            color: var(--text-dark);
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-            line-height: 1.6;
-        }
-
-        /* Navbar styles */
-        .navbar {
-            background: var(--primary) !important;
-            border-bottom: 1px solid rgba(255,255,255,0.12);
-        }
-
-        .navbar-brand,
-        .nav-link {
-            color: white !important;
-            font-weight: 500;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            color: var(--primary-light) !important;
-        }
-
-        /* Main content area - reduced top padding */
-        main {
-            padding-top: 4.5rem;           /* 原 5.5rem → 減少，給 hero 更多空間向上靠攏 */
-            padding-bottom: 2rem;          /* 原 3rem → 減少頁尾上方空間 */
-        }
-
-        @media (max-width: 991.98px) {
-            main {
-                padding-top: 4rem;
-            }
-        }
-
-        /* Card styles */
-        .card {
-            border: none;
-            border-radius: 1.25rem;
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.28s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-6px);
-            box-shadow: var(--shadow-md);
-        }
-
-        /* Button styles */
-        .btn-primary {
-            background-color: var(--primary);
-            border-color: var(--primary);
-            border-radius: 2rem;
-            padding: 0.65rem 1.8rem;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-            border-color: var(--primary-dark);
-            transform: translateY(-1px);
-        }
-
-        .btn-outline-primary {
-            color: var(--primary);
-            border-color: var(--primary);
-            border-radius: 2rem;
-        }
-
-        .btn-outline-primary:hover {
-            background-color: var(--primary);
-            color: white;
-        }
-
-        /* Utility classes */
-        .text-primary       { color: var(--primary) !important; }
-        .bg-primary         { background-color: var(--primary) !important; }
-        .bg-primary-subtle  { background-color: rgba(10, 108, 116, 0.07) !important; }
-        .border-primary     { border-color: var(--primary) !important; }
-
-        /* Hero section - significantly reduced bottom spacing */
-        .hero {
-            background: linear-gradient(135deg, #4db8c4 0%, #0a6c74 100%);
-            color: white;
-            padding: 5rem 1rem 2rem;          /* 上方保留空間，下方大幅壓縮 */
-            margin-bottom: 0.75rem;            /* 原 3rem → 0.75rem，關鍵減少留白 */
-            border-radius: 0 0 2.5rem 2.5rem;
-            text-align: center;
-        }
-
-        .hero h1 {
-            font-weight: 700;
-            letter-spacing: -0.8px;
-        }
-
-        .hero .lead {
-            max-width: 720px;
-            margin: 1.5rem auto 1.5rem;       /* 內部間距也壓縮 */
-            opacity: 0.95;
-        }
-
-        /* Footer */
-        footer {
-            background: var(--primary);
-            color: white;
-            padding: 3rem 0 2rem;
-            margin-top: 4rem;                  /* 原 5rem → 稍微減少 */
-        }
-
-        footer a {
-            color: rgba(255,255,255,0.85);
-            text-decoration: none;
-        }
-
-        footer a:hover {
-            color: white;
-            text-decoration: underline;
-        }
-    </style>
+    {% block head %}{% endblock %}
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 
-    <!-- Fixed top navigation bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-primary">
         <div class="container-fluid px-4 px-lg-5">
             <a class="navbar-brand" href="{{ url_for('home') }}">
                 <i class="bi bi-leaf-fill me-2"></i>EcoCleanUp Hub
             </a>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarContent" aria-controls="navbarContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="navbarContent">
-                <ul class="navbar-nav ms-auto align-items-center gap-1 gap-lg-3">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('events.list_events') }}">
+                            <i class="bi bi-search me-1"></i>Browse Events
+                        </a>
+                    </li>
+
                     {% if session.user_id %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('events') }}">Browse Events</a>
-                        </li>
+                    {% if session.role == 'volunteer' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('user.my_participation') }}">
+                            <i class="bi bi-calendar-check me-1"></i>My Participation
+                        </a>
+                    </li>
+                    {% elif session.role == 'event_leader' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('leader.my_events') }}">
+                            <i class="bi bi-list-check me-1"></i>My Events
+                        </a>
+                    </li>
+                    {% elif session.role == 'admin' %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-gear me-1"></i>Admin
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('admin.manage_users') }}">Manage Users</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('admin.manage_all_events') }}">Manage Events</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('admin.reports') }}">Reports</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
 
-                        {% if session.role == 'volunteer' %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('my_participation') }}">My Participation</a>
-                        </li>
-                        {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('user.profile') }}">
+                            <i class="bi bi-person-circle me-1"></i>Profile
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
 
-                        {% if session.role == 'event_leader' %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('leader_my_events') }}">My Events</a>
-                        </li>
-                        {% endif %}
-
-                        {% if session.role == 'admin' %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Admin
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{{ url_for('admin_users') }}">Manage Users</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('admin_events') }}">Manage Events</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('admin_reports') }}">Reports</a></li>
-                            </ul>
-                        </li>
-                        {% endif %}
-
-                        <li class="nav-item ms-lg-3">
-                            <a class="nav-link" href="{{ url_for('profile') }}">
-                                <i class="bi bi-person-circle me-1"></i> Profile
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('logout') }}">
-                                <i class="bi bi-box-arrow-right"></i> Logout
-                            </a>
-                        </li>
+                <ul class="navbar-nav ms-auto">
+                    {% if session.user_id %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.logout') }}">
+                            <i class="bi bi-box-arrow-right me-1"></i>Logout
+                        </a>
+                    </li>
                     {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
-                        </li>
-                        <li class="nav-item ms-2">
-                            <a class="btn btn-primary btn-sm px-4 py-2" href="{{ url_for('register') }}">Register</a>
-                        </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.login') }}">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Login
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.register') }}">
+                            <i class="bi bi-person-plus me-1"></i>Register
+                        </a>
+                    </li>
                     {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Optional hero section – child templates can override this block -->
-    {% block hero %}{% endblock %}
-
-    <!-- Main content area with responsive padding -->
-    <main class="container-fluid px-3 px-md-4 px-lg-5">
-        <!-- Flash messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
+    <!-- Main content -->
+    <main class="flex-grow-1 pt-5 mt-5">
+        <div class="container py-4">
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <div class="row justify-content-center mb-4">
-                    <div class="col-12 col-lg-10">
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-10">
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
+                    {% endfor %}
                 </div>
+            </div>
             {% endif %}
-        {% endwith %}
+            {% endwith %}
 
-        {% block content %}{% endblock %}
+            {% block content %}{% endblock %}
+        </div>
     </main>
 
     <!-- Footer -->
-    <footer class="text-center">
+    <footer class="bg-primary text-white text-center py-4 mt-auto">
         <div class="container">
-            <p class="mb-2">
+            <p class="mb-1">
                 <i class="bi bi-leaf me-1"></i> EcoCleanUp Hub – Community Cleanup Management System
             </p>
             <p class="small mb-0">
@@ -256,12 +137,14 @@
         </div>
     </footer>
 
-    <!-- Bootstrap JS bundle -->
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"></script>
 
-    <!-- Page-specific scripts block -->
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+
     {% block scripts %}{% endblock %}
 </body>
 </html>

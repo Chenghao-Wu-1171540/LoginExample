@@ -1,6 +1,6 @@
 /loginapp/__pycache__
 /.idea
-loginapp/connect.py
+connect.py
 __pycache__/
 *.pyc
 /static/profile_images/*.*

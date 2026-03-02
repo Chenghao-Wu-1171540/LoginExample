@@ -4,157 +4,128 @@
 
 {% block content %}
 
-<h2 class="mb-4 text-success">
-    <i class="bi bi-bar-chart-line-fill me-2"></i>Platform Reports
-</h2>
+<div class="container mt-4">
+    <h2 class="mb-4 text-success">
+        <i class="bi bi-bar-chart-line-fill me-2"></i>Platform Reports
+    </h2>
 
-<div class="row g-4">
+    <div class="row g-4">
 
-    <!-- 用户统计 -->
-    <div class="col-lg-6">
-        <div class="card shadow-sm h-100 border-success">
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0"><i class="bi bi-people me-2"></i>User Statistics</h5>
-            </div>
-            <div class="card-body">
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Total Users</span>
-                        <strong>{{ stats.users_by_role.volunteer|default(0) + stats.users_by_role.event_leader|default(0) + stats.users_by_role.admin|default(0) }}</strong>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Volunteers</span>
-                        <strong>{{ stats.users_by_role.volunteer|default(0) }}</strong>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Event Leaders</span>
-                        <strong>{{ stats.users_by_role.event_leader|default(0) }}</strong>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Administrators</span>
-                        <strong>{{ stats.users_by_role.admin|default(0) }}</strong>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Active Users</span>
-                        <strong class="text-success">{{ stats.users_by_status.active|default(0) }}</strong>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Inactive Users</span>
-                        <strong class="text-secondary">{{ stats.users_by_status.inactive|default(0) }}</strong>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <!-- 活动 & 报名统计 -->
-    <div class="col-lg-6">
-        <div class="card shadow-sm h-100 border-success">
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0"><i class="bi bi-calendar-event me-2"></i>Event & Participation</h5>
-            </div>
-            <div class="card-body">
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Total Events</span>
-                        <strong>{{ stats.total_events }}</strong>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Upcoming Events</span>
-                        <strong class="text-primary">{{ stats.upcoming_events }}</strong>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Past Events</span>
-                        <strong class="text-secondary">{{ stats.past_events }}</strong>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Total Registrations</span>
-                        <strong>{{ stats.total_registrations }}</strong>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Total Attendees (recorded)</span>
-                        <strong class="text-success">{{ stats.total_attendees }}</strong>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <!-- 环境成果 -->
-    <div class="col-12">
-        <div class="card shadow-sm border-success">
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0"><i class="bi bi-recycle me-2"></i>Environmental Impact</h5>
-            </div>
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-md-4 mb-3">
-                        <div class="p-3 border rounded bg-light">
-                            <h6>Total Bags Collected</h6>
-                            <h3 class="text-success mb-0">{{ stats.total_bags }}</h3>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="p-3 border rounded bg-light">
-                            <h6>Total Recyclables Sorted</h6>
-                            <h3 class="text-success mb-0">{{ stats.total_recyclables }}</h3>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="p-3 border rounded bg-light">
-                            <h6>Average Event Rating</h6>
-                            <h3 class="text-success mb-0">{{ stats.average_rating }}</h3>
-                        </div>
-                    </div>
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100 border-success">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-people me-2"></i>User Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Total Users</span>
+                            <strong>{{ stats.total_users|default(0) }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Volunteers</span>
+                            <strong>{{ stats.users_by_role.volunteer|default(0) }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Event Leaders</span>
+                            <strong>{{ stats.users_by_role.event_leader|default(0) }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Administrators</span>
+                            <strong>{{ stats.users_by_role.admin|default(0) }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Active Users</span>
+                            <strong>{{ stats.active_users|default(0) }}</strong>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- 最近活动 -->
-    <div class="col-12">
-        <div class="card shadow-sm border-success">
-            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent Events</h5>
-                <small>Last 5 events</small>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Event Name</th>
-                                <th>Date</th>
-                                <th>Location</th>
-                                <th>Registrations</th>
-                                <th>Attendees</th>
-                                <th>Bags</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for event in recent_events %}
-                            <tr>
-                                <td>{{ event.event_name }}</td>
-                                <td>{{ event.event_date.strftime('%Y-%m-%d') }}</td>
-                                <td>{{ event.location }}</td>
-                                <td>{{ event.registrations }}</td>
-                                <td>{{ event.num_attendees or '-' }}</td>
-                                <td>{{ event.bags_collected or '-' }}</td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="6" class="text-center py-4 text-muted">
-                                    No events recorded yet.
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+        <!-- 事件统计卡片 -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100 border-success">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-calendar-event me-2"></i>Event Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Total Events</span>
+                            <strong>{{ stats.total_events|default(0) }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Upcoming Events</span>
+                            <strong>{{ stats.upcoming_events|default(0) }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Past Events</span>
+                            <strong>{{ stats.past_events|default(0) }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Total Registrations</span>
+                            <strong>{{ stats.total_registrations|default(0) }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Average Attendees per Event</span>
+                            <strong>{{ stats.avg_attendees|default(0)|round(1) }}</strong>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
+
+        <!-- 最近事件表格 -->
+        <div class="col-12">
+            <div class="card shadow-sm border-success">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent Events</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_events %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Event Name</th>
+                                    <th>Date</th>
+                                    <th>Location</th>
+                                    <th>Registrations</th>
+                                    <th>Attendees</th>
+                                    <th>Bags Collected</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for event in recent_events %}
+                                <tr>
+                                    <td>{{ event.event_name }}</td>
+                                    <td>{{ event.event_date.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ event.location }}</td>
+                                    <td>{{ event.registrations }}</td>
+                                    <td>{{ event.num_attendees or '-' }}</td>
+                                    <td>{{ event.bags_collected or '-' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info text-center mb-0">
+                        No events have been recorded yet.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
     </div>
 
+    <div class="mt-4 text-center">
+        <a href="{{ url_for('admin.manage_users') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to Manage Users
+        </a>
+    </div>
 </div>
 
 {% endblock %}

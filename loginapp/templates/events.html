@@ -1,60 +1,80 @@
 {% extends "base.html" %}
-{% block title %}Browse Events{% endblock %}
+{% block title %}Browse Events - EcoCleanUp Hub{% endblock %}
 
 {% block content %}
-<h2 class="mb-4 mb-md-5 text-center text-md-start">
-    <i class="bi bi-search me-2"></i>Browse Upcoming Clean-up Events
-</h2>
 
-<div class="row g-3 mb-4 mb-md-5">
-    <div class="col-12 col-md-5">
-        <input type="text" name="location" class="form-control form-control-lg"
-               placeholder="Search location (Sumner, Rolleston...)" value="{{ search_location }}">
-    </div>
-    <div class="col-12 col-sm-6 col-md-4">
-        <input type="date" name="date" class="form-control form-control-lg" value="{{ search_date }}">
-    </div>
-    <div class="col-12 col-sm-6 col-md-3">
-        <button type="submit" class="btn btn-primary btn-lg w-100">
-            <i class="bi bi-filter me-2"></i>Filter
-        </button>
-    </div>
-</div>
+<div class="container mt-4">
+    <h2 class="mb-4 text-success text-center text-md-start">
+        <i class="bi bi-search me-2"></i>Browse Upcoming Clean-up Events
+    </h2>
 
-{% if events %}
-<div class="row g-4">
-    {% for event in events %}
-    <div class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body d-flex flex-column p-4">
-                <h5 class="card-title text-primary mb-3">{{ event.event_name }}</h5>
-                <p class="mb-2">
-                    <i class="bi bi-geo-alt-fill me-1"></i> {{ event.location }}<br>
-                    <i class="bi bi-calendar-event me-1"></i> {{ event.event_date.strftime('%Y-%m-%d') }}
-                </p>
-                <p class="mb-3">
-                    <i class="bi bi-clock me-1"></i> {{ event.start_time.strftime('%H:%M') }} • {{ event.duration }} min
-                </p>
-                <div class="mt-auto">
-                    {% if event.registered %}
-                    <span class="badge bg-success fs-6 px-3 py-2">Registered</span>
-                    {% else %}
-                    <form action="{{ url_for('register_event', event_id=event.event_id) }}" method="POST">
-                        <button type="submit" class="btn btn-outline-primary w-100">
-                            Register Now
-                        </button>
-                    </form>
-                    {% endif %}
+    <form method="GET" action="{{ url_for('events.list_events') }}" class="row g-3 mb-5">
+        <div class="col-12 col-md-5">
+            <input type="text" name="location" class="form-control form-control-lg"
+                   placeholder="Search by location (e.g. Sumner, Rolleston...)"
+                   value="{{ request.args.get('location', '') }}">
+        </div>
+        <div class="col-12 col-md-4">
+            <input type="date" name="date" class="form-control form-control-lg"
+                   value="{{ request.args.get('date', '') }}">
+        </div>
+        <div class="col-12 col-md-3">
+            <button type="submit" class="btn btn-success btn-lg w-100">
+                <i class="bi bi-filter me-2"></i>Filter
+            </button>
+        </div>
+    </form>
+
+    {% if events %}
+    <div class="row g-4">
+        {% for event in events %}
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm border-success-subtle">
+                <div class="card-body d-flex flex-column p-4">
+                    <h5 class="card-title text-success mb-3">{{ event.event_name }}</h5>
+
+                    <p class="mb-2">
+                        <i class="bi bi-geo-alt-fill me-1 text-muted"></i> {{ event.location }}
+                    </p>
+                    <p class="mb-2">
+                        <i class="bi bi-calendar-event me-1 text-muted"></i>
+                        {{ event.event_date.strftime('%Y-%m-%d') }}
+                    </p>
+                    <p class="mb-3">
+                        <i class="bi bi-clock me-1 text-muted"></i>
+                        {{ event.start_time.strftime('%H:%M') }} • {{ event.duration }} min
+                    </p>
+
+                    <div class="mt-auto">
+                        {% if event.registered %}
+                        <span class="badge bg-success fs-6 px-4 py-2">
+                            <i class="bi bi-check-circle me-1"></i>Registered
+                        </span>
+                        {% else %}
+                        <form action="{{ url_for('events.register_event', event_id=event.event_id) }}" method="POST">
+                            <button type="submit" class="btn btn-outline-success w-100">
+                                <i class="bi bi-plus-circle me-1"></i>Register Now
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
+        {% endfor %}
     </div>
-    {% endfor %}
+    {% else %}
+    <div class="alert alert-info text-center py-5 my-5">
+        <i class="bi bi-info-circle-fill me-2 fs-4"></i>
+        No matching events found. Try adjusting your filters.
+    </div>
+    {% endif %}
+
+    <div class="text-center mt-5">
+        <a href="{{ url_for('home') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to Home
+        </a>
+    </div>
 </div>
-{% else %}
-<div class="alert alert-info text-center py-5 my-4">
-    No matching events found. Try adjusting filters.
-</div>
-{% endif %}
 
 {% endblock %}

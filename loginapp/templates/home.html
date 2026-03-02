@@ -1,74 +1,160 @@
 {% extends "base.html" %}
 {% block title %}EcoCleanUp Hub - Home{% endblock %}
 
-{% block hero %}
-<!-- Hero / welcome banner - compressed spacing -->
-<section class="hero" style="margin-bottom: 0.75rem !important; padding-bottom: 2rem !important;">
+{% block content %}
+
+<!-- Hero Section -->
+<section class="hero text-white text-center py-5 mb-5">
     <div class="container">
-        <h1 class="display-4 fw-bold mb-3">Clean Up Canterbury Together</h1>
-        <p class="lead mb-4" style="max-width: 720px; margin: 0 auto 1.5rem;">
-            Join local clean-up events, protect our coastlines and rivers.
+        <h1 class="display-4 fw-bold mb-4">
+            <i class="bi bi-leaf-fill me-2"></i>Clean Up Canterbury Together
+        </h1>
+        <p class="lead mb-5" style="max-width: 720px; margin: 0 auto;">
+            Join local clean-up events, protect our coastlines, rivers and communities.
         </p>
-        <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
-            <a href="{{ url_for('events') }}" class="btn btn-light btn-lg px-5 py-3 fw-semibold">
-                Find Events
+        <div class="d-flex flex-column flex-sm-row justify-content-center gap-4">
+            <a href="{{ url_for('events.list_events') }}" class="btn btn-light btn-lg px-5 py-3 fw-semibold">
+                <i class="bi bi-search me-2"></i>Find Events
             </a>
             {% if not session.user_id %}
-            <a href="{{ url_for('register') }}" class="btn btn-outline-light btn-lg px-5 py-3 fw-semibold">
-                Join as Volunteer
+            <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light btn-lg px-5 py-3 fw-semibold">
+                <i class="bi bi-person-plus me-2"></i>Join as Volunteer
             </a>
             {% endif %}
         </div>
     </div>
 </section>
-{% endblock %}
 
-{% block content %}
-<!-- Card section - very tight spacing -->
-<div class="row g-3 mt-1 mb-4">
-    <div class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100 shadow-sm text-center border-0">
-            <div class="card-body py-4 px-3">
-                <i class="bi bi-trash3-fill display-4 text-primary mb-2"></i>
-                <h5 class="card-title mb-1">Remove Waste</h5>
-                <p class="card-text text-muted small mb-0">
-                    Beaches, rivers, parks
-                </p>
+<!-- Features Cards -->
+<div class="container">
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm text-center border-0">
+                <div class="card-body py-5 px-4">
+                    <i class="bi bi-trash3-fill display-4 text-success mb-4"></i>
+                    <h5 class="card-title mb-3">Remove Waste</h5>
+                    <p class="text-muted">
+                        Help collect rubbish from beaches, parks and rivers
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm text-center border-0">
+                <div class="card-body py-5 px-4">
+                    <i class="bi bi-tree-fill display-4 text-success mb-4"></i>
+                    <h5 class="card-title mb-3">Restore Nature</h5>
+                    <p class="text-muted">
+                        Participate in tree planting and habitat restoration
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm text-center border-0">
+                <div class="card-body py-5 px-4">
+                    <i class="bi bi-people-fill display-4 text-success mb-4"></i>
+                    <h5 class="card-title mb-3">Build Community</h5>
+                    <p class="text-muted">
+                        Meet like-minded people and make a real impact
+                    </p>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100 shadow-sm text-center border-0">
-            <div class="card-body py-4 px-3">
-                <i class="bi bi-tree-fill display-4 text-primary mb-2"></i>
-                <h5 class="card-title mb-1">Restore Nature</h5>
-                <p class="card-text text-muted small mb-0">
-                    Planting & habitat projects
-                </p>
+    <!-- Upcoming Events Reminder (for logged-in volunteers) -->
+    {% if show_reminder and upcoming %}
+    <div class="card shadow-sm border-success mb-5">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="bi bi-bell-fill me-2"></i>Your Upcoming Events</h5>
+        </div>
+        <div class="card-body">
+            <div class="list-group">
+                {% for event in upcoming %}
+                <a href="{{ url_for('events.list_events') }}" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">{{ event.event_name }}</h6>
+                        <small>{{ event.event_date.strftime('%Y-%m-%d') }}</small>
+                    </div>
+                    <p class="mb-1 text-muted">
+                        <i class="bi bi-geo-alt me-1"></i>{{ event.location }}
+                    </p>
+                    <small class="text-muted">
+                        Starts at {{ event.start_time.strftime('%H:%M') }}
+                    </small>
+                </a>
+                {% endfor %}
             </div>
         </div>
     </div>
+    {% endif %}
 
-    <div class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100 shadow-sm text-center border-0">
-            <div class="card-body py-4 px-3">
-                <i class="bi bi-people-fill display-4 text-primary mb-2"></i>
-                <h5 class="card-title mb-1">Build Community</h5>
-                <p class="card-text text-muted small mb-0">
-                    Meet people, make impact
-                </p>
+    <!-- Call to Action -->
+    <div class="text-center py-5">
+        <h4 class="mb-4 fw-semibold text-success">
+            Ready to make a difference in Canterbury?
+        </h4>
+        <a href="{{ url_for('events.list_events') }}" class="btn btn-success btn-lg px-5 py-3">
+            <i class="bi bi-arrow-right-circle me-2"></i>Browse Upcoming Clean-ups
+        </a>
+    </div>
+</div>
+
+
+{% if upcoming_events_modal %}
+<div class="modal fade" id="upcomingEventsModal" tabindex="-1" aria-labelledby="upcomingEventsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-success">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="upcomingEventsModalLabel">
+                    <i class="bi bi-bell-fill me-2"></i>Upcoming event reminder！
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="lead text-center mb-4">You have the following activities coming up. Remember to attend them on time!！</p>
+                <div class="list-group">
+                    {% for event in upcoming_events_modal %}
+                    <a href="{{ url_for('events.list_events') }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ event.event_name }}</h5>
+                            <small class="text-muted">{{ event.event_date.strftime('%Y-%m-%d') }}</small>
+                        </div>
+                        <p class="mb-1">
+                            <i class="bi bi-geo-alt-fill me-1"></i>{{ event.location }}
+                        </p>
+                        <small class="text-muted">
+                            Start time：{{ event.start_time.strftime('%H:%M') }}
+                        </small>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">See it later</button>
+                <a href="{{ url_for('events.list_events') }}" class="btn btn-success">
+                    View all activities
+                </a>
             </div>
         </div>
     </div>
 </div>
 
-<!-- CTA section - pulled much closer -->
-<div class="text-center mt-3 pt-2">
-    <h4 class="mb-3 fw-semibold">Ready to make a difference?</h4>
-    <a href="{{ url_for('events') }}" class="btn btn-primary btn-lg px-5 py-3">
-        Browse Upcoming Clean-ups →
-    </a>
-</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var modalElement = document.getElementById('upcomingEventsModal');
+        if (modalElement) {
+            var modal = new bootstrap.Modal(modalElement, {
+                backdrop: 'static',
+                keyboard: false
+            });
+            modal.show();
+        }
+    });
+</script>
+{% endif %}
 
 {% endblock %}

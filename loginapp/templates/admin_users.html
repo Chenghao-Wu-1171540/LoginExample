@@ -4,69 +4,80 @@
 
 {% block content %}
 
-<h2 class="mb-4 text-success">
-    <i class="bi bi-people-fill me-2"></i>Manage Platform Users
-</h2>
+<div class="container mt-4">
+    <h2 class="mb-4 text-success">
+        <i class="bi bi-people-fill me-2"></i>Manage Platform Users
+    </h2>
 
-<form method="GET" class="mb-4">
-    <div class="input-group input-group-lg">
-        <input type="text" name="search" class="form-control"
-               placeholder="Search by username, full name or email..."
-               value="{{ search or '' }}">
-        <button class="btn btn-success" type="submit">
-            <i class="bi bi-search me-1"></i>Search
-        </button>
+    <form method="GET" class="mb-5">
+        <div class="input-group input-group-lg">
+            <input type="text" name="search" class="form-control"
+                   placeholder="Search by username, full name or email..."
+                   value="{{ search or '' }}">
+            <button class="btn btn-success" type="submit">
+                <i class="bi bi-search me-1"></i>Search
+            </button>
+        </div>
+    </form>
+
+    {% if users %}
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered align-middle">
+            <thead class="table-success">
+                <tr>
+                    <th>Username</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.full_name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        <span class="badge bg-{% if user.role == 'admin' %}danger{% elif user.role == 'event_leader' %}primary{% else %}success{% endif %} fs-6">
+                            {{ user.role | replace('_', ' ') | title }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge bg-{% if user.status == 'active' %}success{% else %}secondary{% endif %} fs-6">
+                            {{ user.status | title }}
+                        </span>
+                    </td>
+                    <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <a href="{{ url_for('admin.toggle_user_status', user_id=user.user_id) }}"
+                           class="btn btn-sm {% if user.status == 'active' %}btn-outline-danger{% else %}btn-outline-success{% endif %}"
+                           onclick="return confirm('Are you sure you want to {{ 'deactivate' if user.status == 'active' else 'activate' }} this user?');">
+                            {% if user.status == 'active' %}Deactivate{% else %}Activate{% endif %}
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-</form>
+    {% else %}
+    <div class="alert alert-info text-center py-5">
+        <i class="bi bi-info-circle-fill me-2 fs-4"></i>
+        No users found matching your search criteria.
+    </div>
+    {% endif %}
 
-{% if users %}
-<div class="table-responsive">
-    <table class="table table-hover table-bordered align-middle">
-        <thead class="table-success">
-            <tr>
-                <th>Username</th>
-                <th>Full Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Joined</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in users %}
-            <tr>
-                <td>{{ user.username }}</td>
-                <td>{{ user.full_name }}</td>
-                <td>{{ user.email }}</td>
-                <td>
-                    <span class="badge bg-{% if user.role == 'admin' %}danger{% elif user.role == 'event_leader' %}primary{% else %}success{% endif %} fs-6">
-                        {{ user.role | replace('_', ' ') | title }}
-                    </span>
-                </td>
-                <td>
-                    <span class="badge bg-{% if user.status == 'active' %}success{% else %}secondary{% endif %} fs-6">
-                        {{ user.status | title }}
-                    </span>
-                </td>
-                <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
-                <td>
-                    <a href="{{ url_for('toggle_user', user_id=user.user_id) }}"
-                       class="btn btn-sm {% if user.status == 'active' %}btn-outline-danger{% else %}btn-outline-success{% endif %}"
-                       onclick="return confirm('Are you sure you want to {{ 'deactivate' if user.status == 'active' else 'activate' }} this user?');">
-                        {% if user.status == 'active' %}Deactivate{% else %}Activate{% endif %}
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="mt-4 text-center">
+        <a href="{{ url_for('admin.manage_all_events') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to Manage Events
+        </a>
+        <a href="{{ url_for('admin.reports') }}" class="btn btn-outline-primary ms-2">
+            <i class="bi bi-bar-chart-line me-1"></i>View Reports
+        </a>
+    </div>
 </div>
-{% else %}
-<div class="alert alert-info text-center py-4">
-    <i class="bi bi-info-circle-fill me-2 fs-4"></i>
-    No users found matching your search criteria.
-</div>
-{% endif %}
 
 {% endblock %}

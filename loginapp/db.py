@@ -1,62 +1,75 @@
-# loginapp/db.py
 """
-PostgreSQL database helper for Flask app using Flask's application context (g).
-This is the recommended way for EcoCleanUp Hub (COMP639 S1 2026).
+loginapp/db.py - PostgreSQL database connection utilities
+
+This module provides:
+- init_db(app): Initialize connection pool at app startup
+- get_db(): Get a connection from the pool (per-request)
+- close_db(exception): Close connection at end of request
 """
 
-from flask import g, current_app
 import psycopg2
-from psycopg2.extras import RealDictCursor
+from psycopg2.pool import SimpleConnectionPool
+from flask import current_app, g
+
+# 從 connect.py 匯入資料庫連線參數
+import connect
+
+# Global connection pool
+pool = None
+
 
 def init_db(app):
-    """Called once when the Flask app starts. Loads connection details from connect.py."""
-    from loginapp.connect import dbuser, dbpass, dbhost, dbport, dbname
+    """
+    Initialize PostgreSQL connection pool when app starts.
+    Pool is created once and reused for all requests.
+    """
+    global pool
 
-    app.config['DB_PARAMS'] = {
-        'user': dbuser,
-        'password': dbpass,
-        'host': dbhost,
-        'port': dbport,
-        'dbname': dbname,
+    # 使用 connect.py 裡定義的參數
+    db_params = {
+        'dbname': connect.dbname,
+        'user': connect.dbuser,
+        'password': connect.dbpass,
+        'host': connect.dbhost,
+        'port': connect.dbport
     }
 
-    # Automatically close DB connection at the end of every request
+    pool = SimpleConnectionPool(
+        minconn=1,
+        maxconn=20,
+        **db_params
+    )
+
+    # Optional: test connection on startup
+    try:
+        conn = pool.getconn()
+        cur = conn.cursor()
+        cur.execute("SELECT version();")
+        print("PostgreSQL connected successfully:", cur.fetchone()[0])
+        cur.close()
+        pool.putconn(conn)
+    except Exception as e:
+        print("Failed to connect to PostgreSQL:", e)
+
+    # Register teardown function
     app.teardown_appcontext(close_db)
 
 
 def get_db():
-    """Returns the same DB connection for the current request (stored in g)."""
+    """
+    Get a database connection for the current request.
+    Uses Flask's g to cache the connection per request.
+    """
     if 'db' not in g:
-        params = current_app.config['DB_PARAMS']
-        g.db = psycopg2.connect(**params, cursor_factory=RealDictCursor)
-        g.db.autocommit = True   # Most web apps should use autocommit=True
+        g.db = pool.getconn()
     return g.db
 
 
-def get_cursor():
-    """Convenience function to get a new cursor."""
-    return get_db().cursor()
-
-
 def close_db(exception=None):
-    """Automatically called by Flask at the end of each request."""
+    """
+    Close the database connection at the end of the request.
+    Returns connection to the pool.
+    """
     db = g.pop('db', None)
     if db is not None:
-        db.close()
-
-
-# Quick test: python loginapp/db.py
-if __name__ == '__main__':
-    from loginapp.connect import dbuser, dbpass, dbhost, dbport, dbname
-    try:
-        conn = psycopg2.connect(user=dbuser, password=dbpass, host=dbhost,
-                                port=dbport, dbname=dbname,
-                                cursor_factory=RealDictCursor)
-        cur = conn.cursor()
-        cur.execute("SELECT version();")
-        print("✅ PostgreSQL connected successfully")
-        print("Version:", cur.fetchone()['version'])
-        cur.close()
-        conn.close()
-    except Exception as e:
-        print("❌ Connection failed:", str(e))
+        pool.putconn(db)

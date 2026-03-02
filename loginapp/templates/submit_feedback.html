@@ -4,58 +4,60 @@
 
 {% block content %}
 
-<div class="row justify-content-center">
-    <div class="col-lg-8 col-md-10">
-        <h2 class="mb-4 text-success text-center">
-            <i class="bi bi-star-fill me-2"></i>Feedback for {{ event.event_name }}
-        </h2>
+<div class="container mt-4">
+    <h2 class="mb-4 text-success text-center">
+        <i class="bi bi-star-fill me-2"></i>Feedback for {{ event.event_name }}
+    </h2>
 
-        <div class="card shadow-sm border-success">
-            <div class="card-header bg-success text-white text-center">
-                <h5 class="mb-0">How was your experience?</h5>
-            </div>
-            <div class="card-body">
-                <form method="POST">
-                    <div class="mb-4 text-center">
-                        <label class="form-label fs-5 fw-bold">Rating</label>
-                        <div class="d-flex justify-content-center gap-3 fs-1">
-                            {% for i in range(1, 6) %}
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="rating" id="rating{{ i }}" 
-                                       value="{{ i }}" required {% if i == 5 %}checked{% endif %}>
-                                <label class="form-check-label" for="rating{{ i }}">
-                                    {{ i }} <i class="bi bi-star-fill text-warning"></i>
-                                </label>
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-sm border-success">
+                <div class="card-header bg-success text-white text-center">
+                    <h5 class="mb-0">How was your experience?</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <div class="mb-5 text-center">
+                            <label class="form-label fs-4 fw-bold d-block mb-3">Rating</label>
+                            <div class="d-flex justify-content-center gap-4 fs-2">
+                                {% for i in range(1, 6) %}
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="rating" id="rating{{ i }}"
+                                           value="{{ i }}" required {% if i == 5 %}checked{% endif %}>
+                                    <label class="form-check-label" for="rating{{ i }}">
+                                        {{ i }} <i class="bi bi-star-fill text-warning"></i>
+                                    </label>
+                                </div>
+                                {% endfor %}
                             </div>
-                            {% endfor %}
                         </div>
-                    </div>
 
-                    <div class="mb-4">
-                        <label for="comments" class="form-label fw-bold">Comments / Suggestions</label>
-                        <textarea class="form-control" id="comments" name="comments" rows="5" 
-                                  placeholder="Tell us about your experience, what went well, what could be improved..."></textarea>
-                        <div class="form-text text-muted mt-2">
-                            Your feedback helps us make future events better!
+                        <div class="mb-4">
+                            <label for="comments" class="form-label fw-bold">Comments / Suggestions</label>
+                            <textarea class="form-control" id="comments" name="comments" rows="5"
+                                      placeholder="Tell us what went well, what could be improved, any suggestions..."></textarea>
+                            <div class="form-text text-muted mt-2">
+                                Your honest feedback helps us improve future events!
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-success btn-lg">
-                            <i class="bi bi-send-fill me-2"></i>Submit Feedback
-                        </button>
-                    </div>
-                </form>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-send-fill me-2"></i>Submit Feedback
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-light text-center small text-muted">
+                    Event Date: {{ event.event_date.strftime('%Y-%m-%d') }} • Thank you for your participation!
+                </div>
             </div>
-            <div class="card-footer bg-light text-center small text-muted">
-                Event Date: {{ event.event_date.strftime('%Y-%m-%d') }} • Thank you for your participation!
-            </div>
-        </div>
 
-        <div class="text-center mt-4">
-            <a href="{{ url_for('my_participation') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-1"></i>Back to My Participation
-            </a>
+            <div class="text-center mt-4">
+                <a href="{{ url_for('user.my_participation') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Back to My Participation
+                </a>
+            </div>
         </div>
     </div>
 </div>

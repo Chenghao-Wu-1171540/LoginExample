@@ -1,52 +1,48 @@
-"""This script provides an easy way to run our "Login Example" app.
-
-There are many ways to run a Flask app, and not all of them require run.py.
-When running locally, you can use any of the following approaches:
-
-    - Execute this run.py script in Python to start your web app. You could:
-        - Open run.py in Visual Studio Code, open the "Run" menu, then select
-            "Start Debugging" (or press F5). This only works if you don't have
-            a custom launch.json file (see below).
-        - Open run.py in Visual Studio Code, right-click anywhere in the code
-            editor, select "Run Python", then select "Run Python File in
-            Terminal". This works whether or not you have a custom launch.json
-            file (see below).
-        - From the terminal, type `python run.py`.
-
-    - To simplify running your web app during development, you can create a
-        custom launch.json file in Visual Studio Code. This runs your app
-        whenever you choose Run/Start Debugging or press F5, regardless of what
-        source file you're currently editing. This method doesn't use run.py.
-        - Go to the "Run and Debug" tab in the sidebar.
-        - Click the link to "create a launch.json file".
-        - Select "More Python Debugger options..." from the menu that appears.
-        - Choose "Python Debugger: Flask LoginExample".
-        - Save the new launch.json file.
-
-    - You can run your Flask app directly from the command line. However,
-        you'll need to specify the app to run. For example, to run `loginapp`
-        you'll need to enter `python -m flask --app loginapp run`. This method
-        doesn't use run.py.
-        
-On PythonAnywhere and similar WSGI servers, you can do either of the following
-in your WSGI configuration file:
-
-    - Import the `app` object from run.py. For example, in PythonAnywhere's
-        WSGI file, set the final line to `from run import app as application`.
-
-    - Import the `app` object directly from the `loginapp` module. For example,
-        in PythonAnywhere's WSGI file, set the final line to `from loginapp
-        import app as application`. This method doesn't require run.py.
-
-Because there are so many ways to start a Python/Flask web app, and many of
-them bypass run.py entirely, don't put any of your application code in here.
-Think of run.py as a "shortcut" or "launcher" used to run your Flask app,
-rather than a core part of the app itself.
+# run.py
 """
-from loginapp import app
+run.py - Development server launcher for EcoCleanUp Hub
 
-# If run.py was actually executed (run), not just imported into another script,
-# then start our Flask app on a local development server. To learn more about
-# how we check for this, refer to https://realpython.com/if-name-main-python/.
-if __name__ == "__main__":
-    app.run(debug=True)
+This file should be placed in the project ROOT directory (same level as 'loginapp/' folder).
+Do NOT put application logic here — only use it to start the dev server.
+
+Usage:
+    python run.py
+"""
+
+import os
+import sys
+
+# Ensure the project root is in sys.path (helps when running from subdirectories)
+project_root = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, project_root)
+
+try:
+    # Import the application factory from the 'loginapp' package
+    from loginapp import create_app
+except ImportError as e:
+    print("Error: Cannot import 'create_app' from 'loginapp'.")
+    print("Possible causes:")
+    print("  1. The 'loginapp/__init__.py' file does not exist or has no 'create_app' function")
+    print("  2. You are running run.py from the wrong directory (must be in the project root)")
+    print("  3. PyCharm / virtual environment cache issue")
+    print(f"Current working directory: {os.getcwd()}")
+    print(f"sys.path: {sys.path}")
+    print(f"Detailed error: {e}")
+    sys.exit(1)
+
+# Create Flask app instance
+app = create_app('development')  # Change to 'production' or 'testing' if needed
+
+if __name__ == '__main__':
+    print("Starting EcoCleanUp Hub development server...")
+    print(f" * Running on http://127.0.0.1:5000 (Press CTRL+C to quit)")
+    print(f" * Debug mode: ON")
+    print(f" * Current working directory: {os.getcwd()}")
+
+    app.run(
+        debug=True,
+        host='0.0.0.0',          # Allow access from local network / other devices
+        port=5000,
+        use_reloader=True,
+        threaded=True
+    )

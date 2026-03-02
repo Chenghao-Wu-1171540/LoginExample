@@ -4,57 +4,76 @@
 
 {% block content %}
 
-<h2 class="mb-4 text-success">
-    <i class="bi bi-calendar-event-fill me-2"></i>Manage All Clean-up Events
-</h2>
+<div class="container mt-4">
+    <h2 class="mb-4 text-success">
+        <i class="bi bi-calendar-event-fill me-2"></i>Manage All Clean-up Events
+    </h2>
 
-{% if events %}
-<div class="table-responsive">
-    <table class="table table-hover table-bordered align-middle">
-        <thead class="table-success">
-            <tr>
-                <th>Event Name</th>
-                <th>Date</th>
-                <th>Location</th>
-                <th>Leader</th>
-                <th>Registrations</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for event in events %}
-            <tr>
-                <td>{{ event.event_name }}</td>
-                <td>{{ event.event_date.strftime('%Y-%m-%d') }}</td>
-                <td>{{ event.location }}</td>
-                <td>{{ event.leader_name }}</td>
-                <td>{{ event.reg_count or 0 }}</td>
-                <td>
-                    {% if event.event_date > today %}
-                        <span class="badge bg-primary">Upcoming</span>
-                    {% elif event.event_date == today %}
-                        <span class="badge bg-warning">Today</span>
-                    {% else %}
-                        <span class="badge bg-secondary">Past</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <a href="{{ url_for('event_detail_leader', event_id=event.event_id) }}"
-                       class="btn btn-sm btn-outline-primary">
-                        <i class="bi bi-eye me-1"></i>View
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    {% if events %}
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered align-middle">
+            <thead class="table-success">
+                <tr>
+                    <th>Event Name</th>
+                    <th>Date</th>
+                    <th>Location</th>
+                    <th>Leader</th>
+                    <th>Registrations</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in events %}
+                <tr>
+                    <td>{{ event.event_name }}</td>
+                    <td>{{ event.event_date.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ event.location }}</td>
+                    <td>{{ event.leader_name }}</td>
+                    <td>{{ event.reg_count or 0 }}</td>
+                    <td>
+                        {% if event.event_date > today %}
+                            <span class="badge bg-primary">Upcoming</span>
+                        {% elif event.event_date == today %}
+                            <span class="badge bg-warning">Today</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Past</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('leader.event_detail', event_id=event.event_id) }}"
+                           class="btn btn-sm btn-outline-primary me-1">
+                            <i class="bi bi-eye me-1"></i>View
+                        </a>
+                        {% if event.event_date >= today %}
+                        <a href="{{ url_for('leader.edit_event', event_id=event.event_id) }}"
+                           class="btn btn-sm btn-outline-warning me-1">
+                            <i class="bi bi-pencil me-1"></i>Edit
+                        </a>
+                        <a href="{{ url_for('leader.cancel_event', event_id=event.event_id) }}"
+                           class="btn btn-sm btn-outline-danger"
+                           data-confirm="Are you sure you want to cancel this event? All registrations will be removed.">
+                            <i class="bi bi-trash me-1"></i>Cancel
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center py-5">
+        <i class="bi bi-info-circle-fill me-2 fs-4"></i>
+        No events have been created on the platform yet.
+    </div>
+    {% endif %}
+
+    <div class="mt-4 text-center">
+        <a href="{{ url_for('admin.manage_users') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to Manage Users
+        </a>
+    </div>
 </div>
-{% else %}
-<div class="alert alert-info text-center py-4">
-    <i class="bi bi-info-circle-fill me-2 fs-4"></i>
-    No events found on the platform.
-</div>
-{% endif %}
 
 {% endblock %}
