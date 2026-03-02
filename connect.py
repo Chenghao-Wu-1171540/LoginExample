@@ -28,14 +28,14 @@ On PythonAnywhere:
     your database "loginexample" then your full database name will be
     "user1234$loginexample".
 """
-dbuser = 'postgres'  # PUT YOUR USERNAME HERE - usually "root"
-dbpass = 'wuwu3839'  # PUT YOUR PASSWORD HERE
-dbhost = 'localhost'
-dbport = 5432
-dbname = 'ecocleanup'
+# dbuser = 'postgres'  # PUT YOUR USERNAME HERE - usually "root"
+# dbpass = 'wuwu3839'  # PUT YOUR PASSWORD HERE
+# dbhost = 'localhost'
+# dbport = 5432
+# dbname = 'ecocleanup'
 
-# dbuser = 'chenghao_wu'  # PUT YOUR USERNAME HERE - usually "root"
-# dbpass = 'WONk1x%q*G(0ru&E'  # PUT YOUR PASSWORD HERE
-# dbhost = 'lincolnmac-5080.postgres.pythonanywhere-services.com'
-# dbport = 15080
-# dbname = 'chenghao_wu_ecu'
+dbuser = 'chenghao_wu'  # PUT YOUR USERNAME HERE - usually "root"
+dbpass = 'WONk1x%q*G(0ru&E'  # PUT YOUR PASSWORD HERE
+dbhost = 'lincolnmac-5080.postgres.pythonanywhere-services.com'
+dbport = 15080
+dbname = 'chenghao_wu_ecu'
